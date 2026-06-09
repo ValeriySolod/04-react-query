@@ -8,7 +8,9 @@ import SearchBar from '../SearchBar/SearchBar';
 import MovieGrid from '../MovieGrid/MovieGrid';
 import Loader from '../Loader/Loader';
 import ErrorMessage from '../ErrorMessage/ErrorMessage';
+import MovieModal from '../MovieModal/MovieModal';
 import { fetchMovies } from '../../services/movieService';
+import type { Movie } from '../../types/movie';
 
 type ModuleWithDefault<T> = { default: T };
 
@@ -21,6 +23,7 @@ const ReactPaginate = (
 export default function App() {
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
+  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
   const { data, isLoading, isError, isFetching } = useQuery({
     queryKey: ['movies', query, page],
@@ -35,6 +38,7 @@ export default function App() {
   const handleSearch = (newQuery: string) => {
     setQuery(newQuery);
     setPage(1);
+    setSelectedMovie(null);
   };
 
   return (
@@ -45,7 +49,9 @@ export default function App() {
 
       {isError && <ErrorMessage />}
 
-      {movies.length > 0 && <MovieGrid movies={movies} />}
+      {movies.length > 0 && (
+        <MovieGrid movies={movies} onSelect={setSelectedMovie} />
+      )}
 
       {isFetching && !isLoading && <Loader />}
 
@@ -60,6 +66,13 @@ export default function App() {
           activeClassName={css.active}
           nextLabel="→"
           previousLabel="←"
+        />
+      )}
+
+      {selectedMovie && (
+        <MovieModal
+          movie={selectedMovie}
+          onClose={() => setSelectedMovie(null)}
         />
       )}
     </div>
