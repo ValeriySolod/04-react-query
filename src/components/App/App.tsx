@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import ReactPaginateModule from 'react-paginate';
 import type { ReactPaginateProps } from 'react-paginate';
 import type { ComponentType } from 'react';
+import { Toaster, toast } from 'react-hot-toast';
 import css from './App.module.css';
 import SearchBar from '../SearchBar/SearchBar';
 import MovieGrid from '../MovieGrid/MovieGrid';
@@ -34,6 +35,12 @@ export default function App() {
 
   const totalPages = data?.total_pages ?? 0;
   const movies = data?.results ?? [];
+
+  useEffect(() => {
+    if (data && query && movies.length === 0) {
+      toast.error('No movies found for your request');
+    }
+  }, [data, query, movies.length]);
 
   const handleSearch = (newQuery: string) => {
     setQuery(newQuery);
@@ -75,6 +82,8 @@ export default function App() {
           onClose={() => setSelectedMovie(null)}
         />
       )}
+
+      <Toaster position="top-right" />
     </div>
   );
 }
